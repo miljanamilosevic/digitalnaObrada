@@ -1,0 +1,46 @@
+#Prikazati signale dobijene odabiranjem signala 8cos(4{\pi}t) za različite periode odabiranja:
+#1. T{1} = 0,01s,
+#2. T{2} = 0,05s i 
+#3. T{3} = 0,1s.
+#Odrediti učestanost datog prostoperiodičnog signala f0. U sva tri slučaja prikazati tri periode signala. Takođe prikazati i originalni analogni signal.
+
+import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams['figure.figsize'] = [15, 10]
+
+f0 = 2
+t = np.arange(0, (3/f0)+0.01, 0.01)
+s = 8 * np.cos(2 * np.pi * f0 * t)
+
+T1 = 0.01
+T2 = 0.05
+T3 = 0.1
+
+t1 = np.arange(0, (3/f0) + T1, T1)
+t2 = np.arange(0, (3/f0) + T2, T2)
+t3 = np.arange(0, (3/f0) + T3, T3)
+
+s_od1 = 8 * np.cos(2 * np.pi * f0 * t1)
+s_od2 = 8 * np.cos(2 * np.pi * f0 * t2)
+s_od3 = 8 * np.cos(2 * np.pi * f0 * t3)
+
+plt.figure()
+plt.plot(t, s, linewidth=1, color='r')
+markerline, stemlines, baseline = plt.stem(t1, s_od1, use_line_collection='True', markerfmt='*')
+plt.setp(stemlines, 'linewidth', 1)
+plt.title('Signal dobijen odabiranjem sa periodom T1')
+plt.show()
+
+plt.figure()
+plt.plot(t, s, 'r')
+markerline, stemlines, baseline = plt.stem(t2, s_od2, use_line_collection='True', markerfmt='*')
+plt.setp(stemlines, 'linewidth', 1)
+plt.title('Signal dobijen odabiranjem sa periodom T2')
+plt.show()
+
+plt.figure()
+plt.plot(t, s, 'r')
+markerline, stemlines, baseline = plt.stem(t3, s_od3, use_line_collection='True', markerfmt='*')
+plt.setp(stemlines, 'linewidth', 1)
+plt.title('Signal dobijen odabiranjem sa periodom T3')
+plt.show()
