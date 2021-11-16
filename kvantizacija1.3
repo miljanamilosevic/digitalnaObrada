@@ -1,0 +1,42 @@
+# Prikazati signale dobijene kvantizacijom signala 7.9cos(2*\pi*f{0}*t), ako je korišćeno 16, 8 i 4 nivoa
+# kvantizacije. Prikazati i signale greške kvantizacije. Na istom grafiku prikazati tri periode kvantizovanog
+# signala i odgovarajuće greške kvantizacije. Smatrati da je f{0}=2 Hz i da je minimalna dozvoljena vrednost signala -8V, a maksimalna vrednost 8V.
+
+import ... 
+
+f0 = 2
+t = np.arange(0, (3/f0)+0.01, 0.01)
+s = 7.9 * np.cos(2*np.pi*f0*t)
+
+minS = -8
+maxS = 8
+
+deltaQ1 = (maxS - minS)/16
+deltaQ2 = (maxS - minS)/8
+deltaQ3 = (maxS - minS)/4
+
+s_q1 = np.floor(s/deltaQ1) * deltaQ1 + deltaQ1/2
+s_q2 = np.floor(s/deltaQ2) * deltaQ2 + deltaQ2/2
+s_q3 = np.floor(s/deltaQ3) * deltaQ3 + deltaQ3/2
+
+plt.figure()
+plt.plot(t, s_q1, 'r')
+plt.plot(t, s-s_q1)
+plt.ylim((-8,8))
+plt.title('Signal nastao kvantizacijom sa 16 nivoa (crvena boja) i dobijeni signal greške (plava boja)')
+plt.show()
+
+plt.figure()
+plt.plot(t, s_q2, 'k')
+plt.plot(t, s - s_q2)
+plt.ylim((-8,8))
+plt.title('Signal nastao kvantizacijom sa 8 nivoa (crna boja) i dobijeni signal greške (plava boja)')
+plt.show()
+
+plt.figure()
+plt.plot(t, s_q3, 'm')
+plt.plot(t, s - s_q3)
+plt.ylim((-8,8))
+plt.title('Signal nastao kvantizacijom sa 4 nivoa (ciklama boja) i dobijeni signal greške (plava boja)')
+plt.show()
+
