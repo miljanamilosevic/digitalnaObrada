@@ -1,0 +1,13 @@
+# Napisati funkciju numeracija koja kao ulazni argument prima niz kvantizovanih odbiraka i moguće
+# vrednosti amplitudskih nivoa. Funkcija treba da koduje ulazni niz odbiraka tako što najnižem
+# amplitudskom nivou pridružuje vrednost 0, sledećem višem nivou pridružuje vrednost 1, potom 2, itd.
+
+def numeracija(odbirci, nivoi):
+
+    kodovi = np.arange(0, len(nivoi))
+    kod_sig = np.zeros(len(odbirci))
+    for i in range(len(odbirci)):
+        kod_sig[i] = kodovi[nivoi==odbirci[i]]
+
+    return kod_sig
+    
