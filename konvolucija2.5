@@ -1,0 +1,24 @@
+# Upotrebom operacija na nivou matrica odrediti konvoluciju diskretnih signala:
+$a(n) = 5\delta(n)-3\delta(n-1)+3\delta(n-2)+4\delta(n-3)+3\delta(n-4)$
+$b(n) = 5\delta(n) - 6\delta(n-1) + 3\delta(n-2)$
+
+from scipy import linalg
+
+a = np.array([5, -3, 3, 4, 3])
+b = np.array([5, -6, 3])
+
+
+c = np.concatenate(([b[0]], np.zeros(len(a)-1)))
+r = np.concatenate((b, np.zeros(len(a)-1)))
+B = linalg.toeplitz(c,r)
+
+print(c)
+print(r)
+print('\n',B)
+
+print(a.shape)
+print(B.shape)
+
+c = np.matmul(a,B)
+print(c)
+
