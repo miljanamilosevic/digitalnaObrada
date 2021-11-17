@@ -1,0 +1,22 @@
+# Napisati funkciju binarizacija koja kao ulazni argument prima vektor kvantizovanih odbiraka i moguće
+# vrednosti amplitudskih nivoa. Izlazni argument funkcije je sekvenca bita nastala kodovanjem odbiraka.
+# Najnižem amplitudskom nivou se pridružuje kodna reč koja nastaje pretvaranjem dekadnog broja 0 u
+# bite. Sledećem višem amplitudskom nivou se dodeljuje binarna kodna reč nastala na osnovu dekadnog
+# broja 1, itd. Izlazna sekvenca nastaje ređanjem binarnih kodnih reči u niz.
+
+def binarizacija(odbirci, nivoi):
+
+    kodovi = np.arange(0, len(nivoi))
+    brojevi = np.zeros(len(odbirci))
+    for i in range(len(odbirci)):
+        brojevi[i] = kodovi[nivoi==odbirci[i]]
+
+
+    sekvenca = [bin(broj).replace('0b', '') for broj in brojevi.astype(int)]
+
+    duzine = [len(s) for s in sekvenca]
+    d_max = np.max(duzine)
+    sekvenca = [s.zfill(d_max) for s in sekvenca]
+    sekvenca = ''.join(sekvenca)
+    return sekvenca
+    
