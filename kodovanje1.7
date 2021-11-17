@@ -1,0 +1,34 @@
+# Signal $7.9cos(2\pi f_{0}t)$ odabrati sa periodom odabiranja $T=0.25 s$. Amlitude odbiraka kvantizovati
+# sa 4 nivoa kvantzacije. Na istoj figuri sa originalnim signalom prikazati i kvantizovane odbirke.
+# Kvantizovane odbirke kodovati funkcijama numeracija i binarizacija. Uporediti dobijene kodove.
+# Posmatrati dve periode signala.
+# Uzeti da je $f_{0}=2Hz$ i da je minimalna dozvoljena vrednost signala $-8V$, a maksimalna $8V$.
+
+import ...
+
+f0 = 2
+T = 0.25
+t = np.arange(0, (2/f0)+0.01, 0.01)
+t1 = np.arange(0, np.max(t)+T, T)
+
+s = 7.9 * np.cos(2*np.pi*f0*t)
+s_s1 = 7.9 * np.cos(2*np.pi*f0*t1)
+
+minS = -8
+maxS = 8
+
+deltaQ = (maxS - minS) / 4
+s_q1 = np.floor(s_s1 / deltaQ) * deltaQ + deltaQ/2
+
+plt.figure()
+plt.plot(t, s, 'r')
+plt.stem(t1, s_q1, use_line_collection='True')
+plt.title('Originalni signal i kvantizovani odbirci.')
+plt.show()
+
+amp_nivoi = np.arange(-6,6+deltaQ, deltaQ)
+kod_sig = numeracija(s_q1, amp_nivoi)
+bit_sek = binarizacija(s_q1, amp_nivoi)
+
+print(kod_sig)
+print(bit_sek)
