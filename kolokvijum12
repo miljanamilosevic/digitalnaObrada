@@ -1,0 +1,40 @@
+#### 1
+import numpy as np import matplotlib.pyplot as plt plt.rcParams['figure.figsize']=[15,10]
+
+f0 = 3 
+t = np.arange(0, (3/f0)+0.01, 0.01) 
+s = 5np.sin(2np.pif0t)
+Ts = 0.04 ts = np.arange(0, (3/f0)+Ts, Ts) 
+sod = 5np.sin(2np.pif0ts)
+
+minS = -5 
+maxS = 5 
+deltaQ = (maxS - minS)/8
+s_q = np.floor(sod/deltaQ) * deltaQ + deltaQ/2
+
+plt.figure() plt.plot(t,s,color='r') plt.title('signal pre odabiranja') plt.show()
+
+plt.figure() plt.plot(t,s,color='r') plt.stem(ts,sod,use_line_collection='True') plt.title('signal nakon odabiranja') plt.show()
+
+plt.figure() plt.plot(t,s, 'r') plt.stem(ts, s_q, use_line_collection='True') plt.title('Originalni signal i kvantizovani odbirci') plt.show()
+
+#### 2
+import numpy as np import matplotlib.pyplot as plt plt.rcParams['figure.figsize']=[10,5] import scipy.signal as sig
+
+a = np.array([1,2,-1,0,-2,1]) b = np.array([2,-1,0,1,0,3])
+
+na = np.arange(-2,4) nb = np.arange(0,6) nc = np.arange(na[0]+nb[0], na[-1]+nb[-1]+1)
+
+c = sig.convolve(a,b)
+
+c1 = sig.convolve(a, b, mode='same')
+
+p1 = int(np.round((len(b)-1)/2)) nc1 = nc[p1:p1+len(a)]
+
+plt.figure() plt.stem(na, a, use_line_collection='True') plt.title('a(n)') plt.show()
+
+plt.figure() plt.stem(nb, b, use_line_collection='True') plt.title('b(n)') plt.show()
+
+plt.figure() plt.stem(nc, c, use_line_collection='True') plt.title('c(n) - puna konvolucija') plt.show()
+
+plt.figure() plt.stem(nc1, c1, use_line_collection='True') plt.title('c1(n) - isti br el kao a(n)') plt.show()
