@@ -1,9 +1,7 @@
 # Odrediti i prikazati signale dobijene konvolucijom diskretnih signala:
-# $a(n)=3\delta(n)-\delta(n-1)+3\delta(n-2)-2\delta(n-3)+\delta(n-4)$
-# $b(n)-2\delta(n)-2\delta(n-1)+2\delta(n-2)$
-# pri čemu je prvi signal konvolucije određen tako da ima isti broj elemenata kao i signal $a(n)$, a drugi signal
-# konvolucije sadrži samo elemente koji nisu nastali proširenjem signala prilikom računanja (dodavanje nula
-# na krajeve).
+# a(n)=3\delta(n)-\delta(n-1)+3\delta(n-2)-2\delta(n-3)+\delta(n-4)
+# b(n)-2\delta(n)-2\delta(n-1)+2\delta(n-2)
+# pri čemu je prvi signal konvolucije određen tako da ima isti broj elemenata kao i signal a(n), a #drugi signal konvolucije sadrži samo elemente koji nisu nastali proširenjem signala prilikom #računanja (dodavanje nula na krajeve).
 
 na = np.arange(0,5)
 a = np.array([3, -1, 3, -2, 1])
