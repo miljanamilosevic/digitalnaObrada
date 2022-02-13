@@ -1,0 +1,208 @@
+: U fajlu ecg4.mat dat je EKG signal (ime promenljive ECG) dobijen sa frekvencijom odabiranja od 
+512Hz. Od čitavog signala izdvojiti deo koji odgovara vremenu od 10.5 do 25.5 sekundi. U signalu je 
+prisutan aditivni beli Gausov šum koji treba ukloniti korišćenjem aritmetičkog usrednjivača dužine 11
+odbiraka. Filtriranje izvršiti u vremenskom domenu. Dodatno, potrebno je izvršiti filtriranje u 
+frekvencijskom domenu sa visoko frekventnim (VF) filtrom sa nepropusnim opsegom do 5Hz i propusnim 
+opsegom od 11Hz do 256Hz. Zahteva se potiskivanje u nepropusnom opsegu od bar 30dB. Nakon 
+filtriranja, odrediti broj otkucaja srca u minuti. Signal sa detektovanim R pikovima prikazati na vremenskoj 
+osi. Dodatno odrediti prosečno vreme trajanja QRS intervala u ms.
+
+load("ecg4.mat")
+fs = 512;
+n = 0:length(ECG)-1;
+t = n/fs;
+
+figure, plot(ECG)
+
+%%
+indeksi = t>=10.5 & t<=25.5;
+t = t(indeksi);
+ECG = ECG(indeksi);
+figure, plot(ECG)
+
+%%
+filtar = ones(1,11)/11;
+ecg_usr = conv(ECG, filtar, 'same');
+figure, plot(ecg_usr)
+
+%%
+df = 6;
+dw = 2*pi*df/fs;
+N = ceil(6.2*pi/dw);
+h = fir1(N-1,[8/(fs/2)],'high',hanning(N));
+%fvtool(h)
+
+ecg_filt = ifft(fft(ecg_usr).*fft(h, length(ecg_usr)));
+figure, plot(ecg_filt)
+
+%%
+[m, ind] = findpeaks(ecg_filt,'MinPeakHeight',0.4,'MinPeakDistance', 228);
+
+figure, plot(ecg_filt)
+hold on
+plot(ind, m, 'r*')
+
+prosjek = mean(diff(ind))/fs;
+bmp = round(60/prosjek)
+
+%%
+ecg_inv = -ecg_filt;
+[lm,ind1] = findpeaks(ecg_inv,'MinPeakProminence',0.3);
+figure, plot(ecg_inv)
+hold on
+plot(ind1,lm,'r*')
+
+figure, plot(t,ecg_filt)
+hold on
+plot(t(ind1), ecg_filt(ind1), 'r*')
+
+Q = ind1(1:2:end);
+S = ind1(2:2:end);
+QRS = mean(S-Q)/fs*1000;
+
+1. Učitati ECG signal dat u ecg.mat fajlu.
+2. Odstraniti prvih 30s i poslednjih 20s snimka. Frekvencija odabiranja je 100Hz.
+3. Iz preostalog signala, prvih 90s sačuvati kao EKG1, a poslednjih 90s kao EKG2.
+4. Isfiltrirati signale PO filtrom sledećih karakteristika: 10-40Hz je propusni opseg, 0-8Hz i 45-50Hz su
+nepropusni opsezi. Za kreiranje filtra koristiti Hanovu prozorsku funkciju za koju važi ∆𝜔 = 6.2𝜋 gde je M
+𝑀
+dužina filtra. Obezbediti da rezultat filtriranja ima isti broj odbiraka kao i polazni signal.
+5. Kvadrirati dobijene signale.
+6. Pronaći R pikove i označiti ih crvenim x na obrađenim i na originalnim signalima EKG1 i EKG2.
+7. Napraviti 2 figure prozora, u prvom jedan ispod drugog prikazati na vremenskoj osi obrađen i
+originalan signal EKG1 sa detektovanim R pikovima. Na drugom figure prozoru uraditi isto za EKG2. 
+8. Izračunati i uporediti broj otkucaja srca u minuti dobijene na osnovu EKG1 i EKG2.
+
+%% 1 
+load("ecg.mat")
+
+%% 2 
+fs = 100;
+n = 0:length(ECG)-1;
+t = n/fs;
+figure, plot(ECG)
+
+i = t>30 & t<t(end)-20;
+t = t(i);
+ECG = ECG(i);
+figure, plot(ECG)
+
+%% 3 
+indeksi1 = t<= (t(1)+90);
+indeksi2 = t>= (t(end)-90);
+
+t1 = t(indeksi2);
+t2 = t(indeksi2);
+
+EKG1 = ECG(indeksi1);
+EKG2 = ECG(indeksi2);
+
+figure, plot(EKG1)
+figure, plot(EKG2)
+
+%% 4 
+df1 = 2;
+df2 = 5;
+df = df1;
+dw = 2*pi*df/fs;
+N = ceil(6.6*pi/dw);
+h = fir1(N-1, [9/(fs/2), 42.5/(fs/2)], 'bandpass', hamming(N));
+
+ekg1 = conv(EKG1, h, 'same');
+ekg2 = conv(EKG2, h, 'same');
+
+figure, plot(ekg1)
+figure, plot(ekg2)
+
+%% 5 
+ekg1 = ekg1.^2;
+ekg2 = ekg2.^2;
+
+figure, plot(ekg1)
+figure, plot(ekg2)
+
+%% 6 
+
+[lm1, ind1] = findpeaks(ekg1,'MinPeakDistance',0.5*fs);
+
+[lm2, ind2] = findpeaks(ekg2, 'MinPeakDistance',0.45*fs,'MinPeakHeight',0.1);
+
+%% 7 
+figure
+subplot(2,1,1)
+plot(t1,EKG1)
+hold on
+plot(t1(ind1),EKG1(ind1),'r*')
+subplot(2,1,2)
+plot(t1,ekg1)
+hold on
+plot(t1(ind1),lm1,'r*')
+
+figure
+subplot(2,1,1)
+plot(t2, EKG2)
+hold on
+plot(t2(ind2), EKG2(ind2),'r*')
+subplot(2,1,2)
+plot(t2, ekg2)
+hold on
+plot(t2(ind2),lm2,'r*')
+
+%% 8 
+pr_int1 = mean(diff(ind1))/fs;
+pr_int2 = mean(diff(ind1))/fs;
+
+bpm1 = round(60/pr_int1)
+bpm2 = round(60/pr_int2)
+
+1. Učitati EEG signal dat u eeg.mat fajlu. Fs je 512Hz. Subjekat je inicijalno bio u opuštenom stanju a potom
+u stanju povećane pažnje.
+2. Prikazati estimiran signal pažnje (ATTENTION) plavom bojom i opuštenost (MEDITATION)
+crvenom na istom figure prozoru.
+3. Na osnovu iscrtanih signala ručno odrediti indeks odbirka koji odgovara prelasku u stanje povećane 
+pažnje. Uz pomoćog tog indeksa izdvojiti deo EEG signala sa povećanom pažnjom.
+4. Isfiltrirati dobijeni signal PO filtrom sledećih karakteristika: 3-11Hz je propusni opseg, 0-1Hz i 13-
+256Hz su nepropusni opsezi. Za kreiranje filtra koristiti prozorsku funkciju koja ima potiskivanje
+od bar 50db u nepropusnom opsegu.
+5. U dobijenom signalu pronaći treptaje koji se manifestuju kao artefakti sa većim amplitudama.
+Dodatno postaviti uslov da se ne očekuju 2 treptaja u vremenskom intervalu od 2s.
+6. Prikazati filtriran signal i odgovarajuće pikove.
+7. Izračunati broj treptaja po minuti.
+
+%% 1 
+load("eeg.mat")
+
+fs = 512;
+n = 0:length(EEG)-1;
+t = n/fs;
+figure, plot(n, EEG)
+
+%% 2 
+figure, plot(ATTENTION, 'b')
+hold on
+plot(MEDITATION, 'r')
+
+%% 3 
+i = 63040;
+eeg_att = EEG(i:end);
+figure, plot(eeg_att);
+
+%% 4 
+df = 2;
+dw = 2*pi*df/fs;
+N = ceil(6.6*pi/dw);
+
+h = fir1(N-1,[2/(fs/2), 12/(fs/2)],'bandpass',hamming(N));
+
+eeg_filt = conv(eeg_att, h, 'same');
+figure, plot(eeg_filt)
+
+%% 5 i 6
+[lm, ind] = findpeaks(eeg_filt,'MinPeakDistance',2*fs , 'MinPeakHeight',200);
+figure, plot(eeg_filt)
+hold on
+plot(ind,lm,'r*')
+
+%% 7 
+dur_sec = length(eeg_filt)/fs;
+trep = round(numel(ind)*60/dur_sec);
