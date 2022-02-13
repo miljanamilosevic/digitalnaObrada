@@ -1,0 +1,101 @@
+##Zadatak 3.1
+Pošto filtar aritmetički usrednjivač određuje srednju vrednost N odbiraka, filtriranje se može predstaviti
+sledećim izrazom: y(n)=1/N*\sum_{k=n}^{n+N-1}*x(k) gde $x(n)$ predstavlja signal, $y(n)$ je signal
+dobijen filtriranjem, a N predstavlja dužinu filtra. Vrednost y(m + 1) se može odrediti na osnovu y(m):
+y(m+1)=y(m)-\frac{x(m)}{N}+\frac{x(m+N)}{N}
+Uvođenjem smene n = m + 1 se dobija:
+y(n)=y(n-1)-\frac{x(n-1)}{N}+\frac{x(n+N-1)}{N}
+Prethodni izraz određuje način implementacije filtra aritmetičkog usrednjivača koja se naziva „kližući
+usrednjivač“. Napisati funkciju movingAverage koja implementira kližući usrednjivač.
+Funkciju isprobati na signalu sadržanom u fajlu abcd.txt.
+#
+
+import numpy as np
+import scipy.signal as sig
+import matplotlib.pyplot as plt
+
+plt.rcParams['figure.figsize'] = [10, 5]
+
+def movingAverage(x, N):
+
+  y = np.zeros(len(x)-N+1)  
+  y[0] = np.mean(x[:N])
+  for i in range(1,len(x)-N+1):
+    y[i] = y[i-1]-x[i-1]/N+x[i+N-1]/N
+
+  return y
+  
+s = np.loadtxt('/content/vezba3_podaci/abcd.txt')
+
+plt.figure()
+plt.plot(s)
+plt.title('Ulazni signal')
+plt.show()
+
+s_f = movingAverage(s, 51)
+
+plt.figure()
+plt.plot(s_f)
+plt.title('Isfiltrirani signal')
+plt.show()
+
+##Zadatak 3.3
+Signal arterijskog krvnog pritiska (engl. ABP – Arterial Blood Pressure) se može iskoristiti da bi se odredile
+vrednosti sistolnog i dijastolnog krvnog pritiska. Sistolni krvni pritisak (engl. SBP - Systolic Blood Pressure)
+je određen maksimalnom vrednošću, dok je dijastolni krvni pritisak (engl. DBP - Diastolic Blood Pressure)
+određen minimalnom vrednošću u okviru jednog impulsa signala, kao što je prikazano na slici ispod.
+Upotrebom funkcije `sig.find_peaks` nad signalom abp odrediti vrednosti SBP i DBP. Abp signal sadržan je u fajlu abp.txt. Odrediti srednji arterijski krvni pritisak (engl. MAP – Mean Arterial Blood Pressure)
+koristeći sledeću aproksimaciju:
+MAP=DBP+\frac{1}{3}(SBP-DBP)
+
+abp = np.loadtxt('/content/vezba3_podaci/abp.txt')
+peak_ind,_ = sig.find_peaks(abp, height=90)
+
+invabp = -abp
+peak_ind2,_ = sig.find_peaks(invabp, distance=50)
+
+plt.figure()
+plt.plot(abp)
+plt.plot(peak_ind, abp[peak_ind], 'r*')
+plt.plot(peak_ind2, abp[peak_ind2], 'k*')
+plt.show()
+
+SBP = np.sum(abp[peak_ind])/len(abp[peak_ind]) #ili SBP = np.mean(abp[peak_ind])
+DBP=np.sum(abp[peak_ind2])/len(abp[peak_ind2]) #ili DBP = np.mean(abp[peak_ind2])
+MBP=DBP+(SBP-DBP)/3
+
+print('MBP iznosi {}'.format(MBP))
+
+
+##Zadatak 3.4
+Odrediti vremenski interval između dva uzastopna otkucaja srca u signalu abp2 ako je frekvencija
+odabiranja signala 125 Hz. S obzirom da je signal značajno oštećen, potrebno je prvo da se isfiltrira šum.
+Vremenski interval između dva uzastopna otkucaja srca se može odrediti kao vreme koje protekne između
+dve uzastopne sistole (engl. PI – Pulse Interval). Sa signala abp2 odrediti PI intervale (signal je sadržan u
+fajlu abp2.txt). Prilikom diskretizacije signala korišćena je frekvencija odabiranja od 125 Hz. Kao
+što se vidi sa slike ispod (a), signal apb2 je značajno oštećen. Ovo oštećenje se može ublažiti upotrebom
+aritmetičkog usrednjivača (b). Pošto se vrednost sistolnog pritiska ne koristi prilikom
+određivanja PI, lokalni maksimumi signala dobijenog filtriranjem se mogu koristiti za određivanje
+trenutaka kada se desila sistola. Treba primetiti da će trenuci dobijeni nad filtriranim signalom biti
+pomereni u vremenu za $\frac{N−1}{2}$ što predstavlja kašnjenje filtra aritmetičkog usrednjivača dužine $N$.
+
+abp2 = np.loadtxt('/content/vezba3_podaci/abp2.txt')
+n = np.arange(0, len(abp2))
+
+N=11
+f = np.ones(N)/N
+s_f = sig.convolve(abp2, f, mode='same')
+
+peak_ind,_ = sig.find_peaks(s_f, distance=50)
+
+plt.figure()
+plt.plot(n, s_f)
+#plt.plot(n, abp2)
+plt.plot(peak_ind, s_f[peak_ind], 'r*')
+plt.show()
+
+intSample = np.mean(np.diff(peak_ind))
+intSec = intSample/125
+print('Vremenski interval izmedju dva uzastopna otkucaja iznosi {} sekunde'.format(intSec))
+bpm = np.round(1/intSec*60)
+print('Broj otkucaja u minuti iznosi {}'.format(int(bpm)))
